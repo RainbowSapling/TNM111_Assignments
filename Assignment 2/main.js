@@ -11,12 +11,7 @@ c.height = cHeight;
 
 c.style.background = "#ddf";
 
-ctx.beginPath();
-ctx.moveTo(cWidth/2, 0);
-ctx.lineTo(cWidth/2, cHeight);
-ctx.moveTo(0, cHeight/2);
-ctx.lineTo(cWidth, cHeight/2);
-ctx.stroke();
+
 
 // Class thet defines a point
 class Point {
@@ -30,7 +25,7 @@ class Point {
 // Array that will store all points from the file
 var dataPoints = [];
 
-var scaleFactor = 4.0;
+var containsNegative = false;
 
 // Read a csv file
 document.getElementById('fileInput').addEventListener('change', function(event) {
@@ -57,17 +52,89 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
 
 
 
+
+
+
+// Button that prints out data
 let btn = document.querySelector("#drawPoints")
 btn.addEventListener("click", function() {
 
+    // Check if the dataset contains negative values
     for (i = 0; i < dataPoints.length; i++) {
-        dataPoints[i].x = parseFloat(dataPoints[i].x) * scaleFactor + (cWidth / 2);
-        dataPoints[i].y = parseFloat(dataPoints[i].y) * scaleFactor + (cHeight / 2);
+        if (parseFloat(dataPoints[i].x) < 0) {
+            containsNegative = true;
+            break;
+        }
+        else if (parseFloat(dataPoints[i].y) < 0) {
+            containsNegative = true;
+            break;
+        }
     }
 
-    console.log(dataPoints);
+    // Variables to help calculate scaling
+    var minX = Infinity;
+    var maxX = -Infinity;
+    var minY = Infinity;
+    var maxY = -Infinity;
+   
+    // Find largest and smalles values in dataset
+    for (i = 0; i < dataPoints.length; i++) {
+        if(parseFloat(dataPoints[i].x) > maxX) {maxX = parseFloat(dataPoints[i].x)}
+        if(parseFloat(dataPoints[i].x) < minX) {minX = parseFloat(dataPoints[i].x)}
+        if(parseFloat(dataPoints[i].y) > maxY) {maxY = parseFloat(dataPoints[i].y)}
+        if(parseFloat(dataPoints[i].y) < minY) {minY = parseFloat(dataPoints[i].y)}
+    }
+   
+    // Find largest absolute value, which will be used for scaling
+    var biggestValue = Math.max(maxX, maxY, Math.abs(minX), Math.abs(minY));
+
+    if (containsNegative == true) {
+        // Calculate scale factor (+5 to avoid points being drawn right at the edge)
+        var scaleFactorNeg = (cWidth/2) / (biggestValue + 5);
+        
+        //Draw axis that has both positive and negative values
+        ctx.beginPath();
+        ctx.lineWidth = 2.0;
+        ctx.moveTo(cWidth/2, 0);
+        ctx.lineTo(cWidth/2, cHeight);
+        ctx.moveTo(0, cHeight/2);
+        ctx.lineTo(cWidth, cHeight/2);
+        ctx.stroke();
+
+        // Move points to origin and scale
+        for (i = 0; i < dataPoints.length; i++) {
+            dataPoints[i].x = parseFloat(dataPoints[i].x) * scaleFactorNeg + (cWidth / 2);
+            dataPoints[i].y = parseFloat(-dataPoints[i].y) * scaleFactorNeg + (cHeight / 2); // Invert y-axis so that positive values are up and negative down
+        }
+    }
+    else {
+        // Calculate scale factor (+5 to avoid points being drawn right at the edge)
+        var scaleFactorPos = cWidth / (biggestValue + 5);
+        
+        // Draw axis that only have positive values
+        ctx.beginPath();
+        ctx.lineWidth = 4.0;
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, cHeight);
+        ctx.lineTo(cWidth, cHeight);
+        ctx.stroke();
+
+        // Move points to origin and scale
+        for (i = 0; i < dataPoints.length; i++) {
+            dataPoints[i].x = parseFloat(dataPoints[i].x) * scaleFactorPos;
+            dataPoints[i].y = parseFloat(-dataPoints[i].y) * scaleFactorPos + cHeight; // Invert y-axis so that positive values are up and negative down
+        }
+    }
+
+
+
+
+
+
+
     
 
+    // Draw points
     for (i = 0; i < dataPoints.length; i++) {
         ctx.beginPath();
         ctx.lineWidth = 1.0;
@@ -91,10 +158,10 @@ btn.addEventListener("click", function() {
             ctx.lineTo(parseFloat(dataPoints[i].x), parseFloat(dataPoints[i].y) - 5)
             ctx.fill();
             ctx.stroke();   
-        }
-        
-          
+        }    
     }    
+
+
 
 });
 
