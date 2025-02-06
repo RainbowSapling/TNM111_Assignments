@@ -15,10 +15,13 @@ c.style.background = "#ddf";
 
 // Class thet defines a point
 class Point {
-    constructor(x, y, type) {
+    constructor(x, y, xOriginal, yOriginal, type, radius) {
         this.x = x;
         this.y = y,
+        this.xOriginal = xOriginal;
+        this.yOriginal = yOriginal;
         this.type = type;
+        this.radius = radius;
     }
 }
 
@@ -40,7 +43,7 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
             // Go through every line in the file and create a point by extracting the x and y position and the type
             for (i = 0; i < splitLines.length; i++) {
                 let temp = splitLines[i].split(",");
-                let point = new Point(temp[0], temp[1], temp[2]);
+                let point = new Point(temp[0], temp[1], temp[0], temp[1], temp[2], 5);
 
                 // Add current point to the array of points
                 dataPoints.push(point);
@@ -127,12 +130,7 @@ btn.addEventListener("click", function() {
     }
 
 
-
-
-
-
-
-    
+ 
 
     // Draw points
     for (i = 0; i < dataPoints.length; i++) {
@@ -165,3 +163,142 @@ btn.addEventListener("click", function() {
 
 });
 
+
+// Define a mouse
+var mouse = { x:0, y:0};
+
+// Find mouse position on screen
+function getMousePos(canvas, e) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+    
+}
+
+// Variable used for checking if a pont has alredy been clicked
+var lastPoint = new Point(0,0,0,0,"a",5);
+
+// When mose is clicked assign new coloras based on quadrant
+window.addEventListener("mousedown", function(e) {
+    // Find mouse position
+    var mousePos = getMousePos(c, e);
+    mouse.x = mousePos.x;
+    mouse.y = mousePos.y;
+    console.log(mouse);
+
+    var minDist = Infinity;
+    var dist = 0;
+    var closestPoint;
+    var clickRadius = 5;
+    
+
+    for (i = 0; i < dataPoints.length; i++) {
+        // Find distance between current point and mouse pos
+        dist = Math.sqrt((mouse.x - dataPoints[i].x) * (mouse.x - dataPoints[i].x) + (mouse.y - dataPoints[i].y) * (mouse.y - dataPoints[i].y));
+
+        // Find closest point to the clicked position
+        if (dist < minDist) {
+            minDist = dist;
+            closestPoint = dataPoints[i];
+        }
+    }
+
+    // Check if a point is already selected
+    if (lastPoint != closestPoint) { // New point is clicked
+        lastPoint = closestPoint;
+
+        // Check if clicked position is close enought to a point
+        if(minDist <= closestPoint.radius + clickRadius) {
+
+            for(i = 0; i < dataPoints.length; i++) {
+
+                var pColor;
+            
+                // Define differet colors for the quadrants
+                // Upper left
+                if (dataPoints[i].x < closestPoint.x && dataPoints[i].y > closestPoint.y) {
+                    pColor = 'rgb(210, 30, 30)';
+                }
+                // Upper right
+                else if (dataPoints[i].x > closestPoint.x && dataPoints[i].y > closestPoint.y) {
+                    pColor = 'rgb(80, 7, 125)';
+                }
+                // Lower left
+                else if (dataPoints[i].x < closestPoint.x && dataPoints[i].y < closestPoint.y) {
+                    pColor = 'rgb(19, 54, 171)';
+                }
+                // Lower right
+                else if (dataPoints[i].x > closestPoint.x && dataPoints[i].y < closestPoint.y){
+                    pColor = 'rgb(241, 123, 20)';
+                }
+         
+            
+                // Redraw the points with new colors
+                ctx.beginPath();
+                ctx.lineWidth = 1.0;
+           
+                // Highlight the point which is the new origin
+                if (dataPoints[i] == closestPoint) {
+                    //ctx.lineWidth = 3.0;
+                    pColor = 'rgb(20, 241, 108)';
+                }
+
+                ctx.fillStyle = pColor;
+
+                // Draw the points
+                if (dataPoints[i].type == "a" || dataPoints[i].type == "foo") {
+                    ctx.arc(dataPoints[i].x, dataPoints[i].y, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.stroke();   
+                }
+                else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz") {
+                    ctx.fillRect(dataPoints[i].x, dataPoints[i].y, 10, 10);
+                    ctx.fill();
+                    ctx.strokeRect(dataPoints[i].x, dataPoints[i].y, 10, 10); 
+                }
+                else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar") {
+                    ctx.moveTo(dataPoints[i].x, parseFloat(dataPoints[i].y) - 5);
+                    ctx.lineTo(parseFloat(dataPoints[i].x) - 5, parseFloat(dataPoints[i].y) + 5)
+                    ctx.lineTo(parseFloat(dataPoints[i].x) + 5, parseFloat(dataPoints[i].y) + 5)
+                    ctx.lineTo(parseFloat(dataPoints[i].x), parseFloat(dataPoints[i].y) - 5)
+                    ctx.fill();
+                    ctx.stroke();   
+                }
+            }
+        }
+    }
+    else { // Same point is clicked again
+        // Draw points and reset the colors
+        for (i = 0; i < dataPoints.length; i++) {
+            ctx.beginPath();
+            ctx.lineWidth = 1.0;
+            if (dataPoints[i].type == "a" || dataPoints[i].type == "foo") {
+                ctx.fillStyle = 'rgb(255, 107, 171)';
+                ctx.arc(dataPoints[i].x, dataPoints[i].y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();   
+            }
+            else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz") {
+                ctx.fillStyle = 'rgb(44, 192, 246)';
+                ctx.fillRect(dataPoints[i].x, dataPoints[i].y, 10, 10);
+                ctx.fill();
+                ctx.strokeRect(dataPoints[i].x, dataPoints[i].y, 10, 10); 
+            }
+            else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar") {
+                ctx.fillStyle = 'rgb(178, 8, 197)';
+                ctx.moveTo(dataPoints[i].x, parseFloat(dataPoints[i].y) - 5);
+                ctx.lineTo(parseFloat(dataPoints[i].x) - 5, parseFloat(dataPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(dataPoints[i].x) + 5, parseFloat(dataPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(dataPoints[i].x), parseFloat(dataPoints[i].y) - 5)
+                ctx.fill();
+                ctx.stroke();   
+            }    
+        }
+        // Reset last clicked point
+        lastPoint = new Point(0,0,0,0,"a",5);
+    }  
+},
+false
+); 
