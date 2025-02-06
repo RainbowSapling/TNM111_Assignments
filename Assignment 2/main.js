@@ -181,7 +181,7 @@ function getMousePos(canvas, e) {
 var lastPoint = new Point(0,0,0,0,"a",5);
 
 // When mose is clicked assign new coloras based on quadrant
-window.addEventListener("mousedown", function(e) {
+window.addEventListener("click", function(e) {
     // Find mouse position
     var mousePos = getMousePos(c, e);
     mouse.x = mousePos.x;
@@ -299,6 +299,49 @@ window.addEventListener("mousedown", function(e) {
         // Reset last clicked point
         lastPoint = new Point(0,0,0,0,"a",5);
     }  
+},
+false
+); 
+
+
+window.addEventListener("contextmenu", function(e) {
+    
+    // Find mouse position
+    var mousePos = getMousePos(c, e);
+    mouse.x = mousePos.x;
+    mouse.y = mousePos.y;
+    console.log(mouse);
+
+    var minDist = Infinity;
+    var dist = 0;
+    var closestPoint;
+    var clickRadius = 5;
+    var nearestPoints = [];
+    var counter = 0;
+    
+
+    for (i = 0; i < dataPoints.length; i++) {
+        // Find distance between current point and mouse pos
+        dist = Math.sqrt((mouse.x - dataPoints[i].x) * (mouse.x - dataPoints[i].x) + (mouse.y - dataPoints[i].y) * (mouse.y - dataPoints[i].y));
+
+        // Find closest point to the clicked position
+        if (dist < minDist) {
+            minDist = dist;
+            closestPoint = dataPoints[i];
+        }
+    }
+
+    // Check if clicked position is close enought to a point
+    if(minDist <= closestPoint.radius + clickRadius) {
+        for (i = 0; i < dataPoints.length; i++) {
+            if (counter >= 5) {
+                break;
+            }
+            
+        }
+    }
+    
+    
 },
 false
 ); 
