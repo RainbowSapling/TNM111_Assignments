@@ -136,19 +136,19 @@ btn.addEventListener("click", function() {
     for (i = 0; i < dataPoints.length; i++) {
         ctx.beginPath();
         ctx.lineWidth = 1.0;
-        if (dataPoints[i].type == "a" || dataPoints[i].type == "foo") {
+        if (dataPoints[i].type == "a" || dataPoints[i].type == "foo" || dataPoints[i].type == "a\r" || dataPoints[i].type == "foo\r") {
             ctx.fillStyle = 'rgb(255, 107, 171)';
             ctx.arc(dataPoints[i].x, dataPoints[i].y, 5, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();   
         }
-        else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz") {
+        else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz" || dataPoints[i].type == "b\r" || dataPoints[i].type == "baz\r") {
             ctx.fillStyle = 'rgb(44, 192, 246)';
             ctx.fillRect(dataPoints[i].x, dataPoints[i].y, 10, 10);
             ctx.fill();
             ctx.strokeRect(dataPoints[i].x, dataPoints[i].y, 10, 10); 
         }
-        else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar") {
+        else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar" || dataPoints[i].type == "c\r" || dataPoints[i].type == "bar\r") {
             ctx.fillStyle = 'rgb(178, 8, 197)';
             ctx.moveTo(dataPoints[i].x, parseFloat(dataPoints[i].y) - 5);
             ctx.lineTo(parseFloat(dataPoints[i].x) - 5, parseFloat(dataPoints[i].y) + 5)
@@ -159,7 +159,7 @@ btn.addEventListener("click", function() {
         }    
     }    
 
-
+    console.log(dataPoints);
 
 });
 
@@ -248,17 +248,17 @@ window.addEventListener("click", function(e) {
                 ctx.fillStyle = pColor;
 
                 // Draw the points
-                if (dataPoints[i].type == "a" || dataPoints[i].type == "foo") {
+                if (dataPoints[i].type == "a" || dataPoints[i].type == "foo" || dataPoints[i].type == "a\r" || dataPoints[i].type == "foo\r") {
                     ctx.arc(dataPoints[i].x, dataPoints[i].y, 5, 0, 2 * Math.PI);
                     ctx.fill();
                     ctx.stroke();   
                 }
-                else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz") {
+                else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz" || dataPoints[i].type == "b\r" || dataPoints[i].type == "baz\r") {
                     ctx.fillRect(dataPoints[i].x, dataPoints[i].y, 10, 10);
                     ctx.fill();
                     ctx.strokeRect(dataPoints[i].x, dataPoints[i].y, 10, 10); 
                 }
-                else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar") {
+                else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar" || dataPoints[i].type == "c\r" || dataPoints[i].type == "bar\r") {
                     ctx.moveTo(dataPoints[i].x, parseFloat(dataPoints[i].y) - 5);
                     ctx.lineTo(parseFloat(dataPoints[i].x) - 5, parseFloat(dataPoints[i].y) + 5)
                     ctx.lineTo(parseFloat(dataPoints[i].x) + 5, parseFloat(dataPoints[i].y) + 5)
@@ -274,19 +274,19 @@ window.addEventListener("click", function(e) {
         for (i = 0; i < dataPoints.length; i++) {
             ctx.beginPath();
             ctx.lineWidth = 1.0;
-            if (dataPoints[i].type == "a" || dataPoints[i].type == "foo") {
+            if (dataPoints[i].type == "a" || dataPoints[i].type == "foo" || dataPoints[i].type == "a\r" || dataPoints[i].type == "foo\r") {
                 ctx.fillStyle = 'rgb(255, 107, 171)';
                 ctx.arc(dataPoints[i].x, dataPoints[i].y, 5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();   
             }
-            else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz") {
+            else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz" || dataPoints[i].type == "b\r" || dataPoints[i].type == "baz\r") {
                 ctx.fillStyle = 'rgb(44, 192, 246)';
                 ctx.fillRect(dataPoints[i].x, dataPoints[i].y, 10, 10);
                 ctx.fill();
                 ctx.strokeRect(dataPoints[i].x, dataPoints[i].y, 10, 10); 
             }
-            else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar") {
+            else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar" || dataPoints[i].type == "c\r" || dataPoints[i].type == "bar\r") {
                 ctx.fillStyle = 'rgb(178, 8, 197)';
                 ctx.moveTo(dataPoints[i].x, parseFloat(dataPoints[i].y) - 5);
                 ctx.lineTo(parseFloat(dataPoints[i].x) - 5, parseFloat(dataPoints[i].y) + 5)
@@ -298,6 +298,7 @@ window.addEventListener("click", function(e) {
         }
         // Reset last clicked point
         lastPoint = new Point(0,0,0,0,"a",5);
+        
     }  
 },
 false
@@ -314,32 +315,33 @@ window.addEventListener("contextmenu", function(e) {
 
     var minDist = Infinity;
     var dist = 0;
-    var closestPoint;
     var clickRadius = 5;
+    var distIndex = {distance:0 , index:0};
+    var distIndexVector = [];
     var nearestPoints = [];
-    var counter = 0;
     
 
     for (i = 0; i < dataPoints.length; i++) {
         // Find distance between current point and mouse pos
-        dist = Math.sqrt((mouse.x - dataPoints[i].x) * (mouse.x - dataPoints[i].x) + (mouse.y - dataPoints[i].y) * (mouse.y - dataPoints[i].y));
+        distIndex = (Math.sqrt((mouse.x - dataPoints[i].x) * (mouse.x - dataPoints[i].x) + (mouse.y - dataPoints[i].y) * (mouse.y - dataPoints[i].y)), i);
 
-        // Find closest point to the clicked position
+        distIndexVector.push(distIndex);
+
         if (dist < minDist) {
             minDist = dist;
-            closestPoint = dataPoints[i];
         }
     }
 
-    // Check if clicked position is close enought to a point
-    if(minDist <= closestPoint.radius + clickRadius) {
-        for (i = 0; i < dataPoints.length; i++) {
-            if (counter >= 5) {
-                break;
-            }
-            
+    distIndexVector.sort((a,b) => a.distance - b.distance);
+
+    if(minDist <= dataPoints[distIndexVector[0].index].radius + clickRadius) { 
+        for (i = 1; i < 6; i++) {
+            nearestPoints.push(dataPoints[distIndexVector[i].index]);
         }
+        console.log(nearestPoints);
+        
     }
+    
     
     
 },
