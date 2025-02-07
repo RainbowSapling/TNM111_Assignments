@@ -180,6 +180,8 @@ function getMousePos(canvas, e) {
 // Variable used for checking if a pont has alredy been clicked
 var lastPoint = new Point(0,0,0,0,"a",5);
 
+//-----------------------------------------------Quadrant------------------------------------------------------------------
+
 // When mose is clicked assign new coloras based on quadrant
 window.addEventListener("click", function(e) {
     // Find mouse position
@@ -305,6 +307,12 @@ false
 ); 
 
 
+
+//-----------------------------------------------Closes 5------------------------------------------------------------------
+
+
+
+
 window.addEventListener("contextmenu", function(e) {
     
     // Find mouse position
@@ -320,10 +328,10 @@ window.addEventListener("contextmenu", function(e) {
     var distIndexVector = [];
     var nearestPoints = [];
     
-
+    // Find distance between selected point and every other point. Also save index for sorting later
     for (i = 0; i < dataPoints.length; i++) {
         // Find distance between current point and mouse pos
-        distIndex = (Math.sqrt((mouse.x - dataPoints[i].x) * (mouse.x - dataPoints[i].x) + (mouse.y - dataPoints[i].y) * (mouse.y - dataPoints[i].y)), i);
+        distIndex = {distance:Math.sqrt((mouse.x - dataPoints[i].x) * (mouse.x - dataPoints[i].x) + (mouse.y - dataPoints[i].y) * (mouse.y - dataPoints[i].y)), index:i};
 
         distIndexVector.push(distIndex);
 
@@ -332,18 +340,132 @@ window.addEventListener("contextmenu", function(e) {
         }
     }
 
+
+    // Sort by distance so that the closest points are the first in the vector
     distIndexVector.sort((a,b) => a.distance - b.distance);
 
+    // Create new vector containing selected point and the closest 5
     if(minDist <= dataPoints[distIndexVector[0].index].radius + clickRadius) { 
-        for (i = 1; i < 6; i++) {
+        for (i = 0; i < 6; i++) {
             nearestPoints.push(dataPoints[distIndexVector[i].index]);
-        }
-        console.log(nearestPoints);
-        
+        }  
     }
     
+   
+    var pColor;
+
+    // Color to highlight selected point
+    pColor = 'rgb(20, 241, 108)';
+
+    // Color for the closest points
+    highlightColor = 'rgb(16, 146, 133)';
     
-    
+
+    // Check if a point is already selected
+    if (lastPoint != nearestPoints[0]) { // New point is clicked
+        lastPoint = nearestPoints[0];
+
+        // Draw all points. Needed if user right clicks several points in a row to reset the color of the last selected points
+        for (i = 0; i < dataPoints.length; i++) {
+            ctx.beginPath();
+            ctx.lineWidth = 1.0;
+            if (dataPoints[i].type == "a" || dataPoints[i].type == "foo" || dataPoints[i].type == "a\r" || dataPoints[i].type == "foo\r") {
+                ctx.fillStyle = 'rgb(255, 107, 171)';
+                ctx.arc(dataPoints[i].x, dataPoints[i].y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();   
+            }
+            else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz" || dataPoints[i].type == "b\r" || dataPoints[i].type == "baz\r") {
+                ctx.fillStyle = 'rgb(44, 192, 246)';
+                ctx.fillRect(dataPoints[i].x, dataPoints[i].y, 10, 10);
+                ctx.fill();
+                ctx.strokeRect(dataPoints[i].x, dataPoints[i].y, 10, 10); 
+            }
+            else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar" || dataPoints[i].type == "c\r" || dataPoints[i].type == "bar\r") {
+                ctx.fillStyle = 'rgb(178, 8, 197)';
+                ctx.moveTo(dataPoints[i].x, parseFloat(dataPoints[i].y) - 5);
+                ctx.lineTo(parseFloat(dataPoints[i].x) - 5, parseFloat(dataPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(dataPoints[i].x) + 5, parseFloat(dataPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(dataPoints[i].x), parseFloat(dataPoints[i].y) - 5)
+                ctx.fill();
+                ctx.stroke();   
+            }    
+        }
+
+        // Draw the selected points and the closest 5 with the defined colors
+        for (i = 0; i < nearestPoints.length; i++) {
+            ctx.beginPath();
+            ctx.lineWidth = 1.0;
+            if (nearestPoints[i].type == "a" || nearestPoints[i].type == "foo" || nearestPoints[i].type == "a\r" || nearestPoints[i].type == "foo\r") {
+                if (i == 0) {
+                    ctx.fillStyle = pColor;
+                }
+                else {
+                    ctx.fillStyle = highlightColor;
+                }
+                ctx.arc(nearestPoints[i].x, nearestPoints[i].y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();   
+            }
+            else if (nearestPoints[i].type == "b" || nearestPoints[i].type == "baz" || nearestPoints[i].type == "b\r" || nearestPoints[i].type == "baz\r") {
+                if (i == 0) {
+                    ctx.fillStyle = pColor;
+                }
+                else {
+                    ctx.fillStyle = highlightColor;
+                }
+                ctx.fillRect(nearestPoints[i].x, nearestPoints[i].y, 10, 10);
+                ctx.fill();
+                ctx.strokeRect(nearestPoints[i].x, nearestPoints[i].y, 10, 10); 
+            }
+            else if (nearestPoints[i].type == "c" || nearestPoints[i].type == "bar" || nearestPoints[i].type == "c\r" || nearestPoints[i].type == "bar\r") {
+                if (i == 0) {
+                    ctx.fillStyle = pColor;
+                }
+                else {
+                    ctx.fillStyle = highlightColor;
+                }
+                ctx.moveTo(nearestPoints[i].x, parseFloat(nearestPoints[i].y) - 5);
+                ctx.lineTo(parseFloat(nearestPoints[i].x) - 5, parseFloat(nearestPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(nearestPoints[i].x) + 5, parseFloat(nearestPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(nearestPoints[i].x), parseFloat(nearestPoints[i].y) - 5)
+                ctx.fill();
+                ctx.stroke();   
+            }    
+        }
+
+
+    }
+    else {// Same point is clicked again
+        // Draw points and reset the colors
+        for (i = 0; i < dataPoints.length; i++) {
+            ctx.beginPath();
+            ctx.lineWidth = 1.0;
+            if (dataPoints[i].type == "a" || dataPoints[i].type == "foo" || dataPoints[i].type == "a\r" || dataPoints[i].type == "foo\r") {
+                ctx.fillStyle = 'rgb(255, 107, 171)';
+                ctx.arc(dataPoints[i].x, dataPoints[i].y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();   
+            }
+            else if (dataPoints[i].type == "b" || dataPoints[i].type == "baz" || dataPoints[i].type == "b\r" || dataPoints[i].type == "baz\r") {
+                ctx.fillStyle = 'rgb(44, 192, 246)';
+                ctx.fillRect(dataPoints[i].x, dataPoints[i].y, 10, 10);
+                ctx.fill();
+                ctx.strokeRect(dataPoints[i].x, dataPoints[i].y, 10, 10); 
+            }
+            else if (dataPoints[i].type == "c" || dataPoints[i].type == "bar" || dataPoints[i].type == "c\r" || dataPoints[i].type == "bar\r") {
+                ctx.fillStyle = 'rgb(178, 8, 197)';
+                ctx.moveTo(dataPoints[i].x, parseFloat(dataPoints[i].y) - 5);
+                ctx.lineTo(parseFloat(dataPoints[i].x) - 5, parseFloat(dataPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(dataPoints[i].x) + 5, parseFloat(dataPoints[i].y) + 5)
+                ctx.lineTo(parseFloat(dataPoints[i].x), parseFloat(dataPoints[i].y) - 5)
+                ctx.fill();
+                ctx.stroke();   
+            }    
+        }
+        // Reset last clicked point
+        lastPoint = new Point(0,0,0,0,"a",5);  
+    }
 },
 false
 ); 
