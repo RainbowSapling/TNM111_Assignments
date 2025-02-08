@@ -11,7 +11,18 @@ c.height = cHeight;
 
 c.style.background = "#ddf";
 
+// Legend settings
 
+var l = document.getElementById("legend");
+var lx = l.getContext("2d");
+
+var lWidth = 100;
+var lHeight = 150;
+
+l.width = lWidth;
+l.height = lHeight;
+
+l.style.background = "#ddf";
 
 // Class thet defines a point
 class Point {
@@ -97,12 +108,65 @@ btn.addEventListener("click", function() {
         
         //Draw axis that has both positive and negative values
         ctx.beginPath();
-        ctx.lineWidth = 2.0;
+        ctx.lineWidth = 3.0;
         ctx.moveTo(cWidth/2, 0);
         ctx.lineTo(cWidth/2, cHeight);
         ctx.moveTo(0, cHeight/2);
         ctx.lineTo(cWidth, cHeight/2);
         ctx.stroke();
+
+        // Draw grid
+        let gridNumber;
+        //x
+        for (i = 50; i < cWidth; i+=50) {
+            // Grid lines
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(200, 200, 200)';
+            ctx.lineWidth = 1.0;
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, cHeight);
+            ctx.stroke();
+            // Ticks on axis
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.lineWidth = 3.0;
+            ctx.moveTo(i, (cHeight/2) - 10);
+            ctx.lineTo(i, (cHeight/2) + 10);
+            ctx.stroke();
+            // Numbers
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(205, 0, 0)';
+            ctx.font = "14px Arial";
+            gridNumber = ((i - 450) / scaleFactorNeg).toFixed(1);
+            ctx.fillText(gridNumber, i - 15, (cHeight/2) + 25);
+            ctx.stroke();
+        }
+        ctx.moveTo(0,50);
+        // y
+        for (i = 50; i < cWidth; i+=50) {
+            // Grid lines
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(200, 200, 200)';
+            ctx.lineWidth = 1.0;
+            ctx.moveTo(0, i);
+            ctx.lineTo(cWidth, i);
+            ctx.stroke();
+            // Ticks on axis
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.lineWidth = 3.0;
+            ctx.moveTo((cWidth/2) - 10, i);
+            ctx.lineTo((cWidth/2) + 10, i);
+            ctx.stroke();
+            // Numbers
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(205, 0, 0)';
+            ctx.font = "14px Arial";
+            gridNumber = ((i - 450) / scaleFactorNeg).toFixed(1);
+            ctx.fillText(gridNumber, (cWidth/2) + 15, i + 5);
+            ctx.stroke();
+        }
+        
 
         // Move points to origin and scale
         for (i = 0; i < dataPoints.length; i++) {
@@ -121,6 +185,58 @@ btn.addEventListener("click", function() {
         ctx.lineTo(0, cHeight);
         ctx.lineTo(cWidth, cHeight);
         ctx.stroke();
+
+        // Draw grid
+        let gridNumber;
+        //x
+        for (i = 50; i < cWidth; i+=50) {
+            // Grid lines
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(200, 200, 200)';
+            ctx.lineWidth = 1.0;
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, cHeight);
+            ctx.stroke();
+            // Ticks on axis
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.lineWidth = 3.0;
+            ctx.moveTo(i, cHeight - 10);
+            ctx.lineTo(i, cHeight);
+            ctx.stroke();
+            // Numbers
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(205, 0, 0)';
+            ctx.font = "14px Arial";
+            gridNumber = (i / scaleFactorPos).toFixed(1);
+            ctx.fillText(gridNumber, i - 15, cHeight - 20);
+            ctx.stroke();
+        }
+        ctx.moveTo(0,50);
+        // y
+        for (i = 50; i < cWidth; i+=50) {
+            // Grid lines
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(200, 200, 200)';
+            ctx.lineWidth = 1.0;
+            ctx.moveTo(0, i);
+            ctx.lineTo(cWidth, i);
+            ctx.stroke();
+            // Ticks on axis
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.lineWidth = 3.0;
+            ctx.moveTo(0, i);
+            ctx.lineTo(10, i);
+            ctx.stroke();
+            // Numbers
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(205, 0, 0)';
+            ctx.font = "14px Arial";
+            gridNumber = ((900 - i) / scaleFactorPos).toFixed(1);
+            ctx.fillText(gridNumber, 15, i + 5);
+            ctx.stroke();
+        }
 
         // Move points to origin and scale
         for (i = 0; i < dataPoints.length; i++) {
@@ -159,7 +275,54 @@ btn.addEventListener("click", function() {
         }    
     }    
 
-    console.log(dataPoints);
+    // Add data to legend
+    var type1;
+    var type2;
+    var type3;
+
+    if (containsNegative) {
+        type1 = "a";
+        type2 = "b";
+        type3 = "c";
+    }
+    else {
+        type1 = "foo";
+        type2 = "baz";
+        type3 = "bar";
+    }
+
+    lx.beginPath();
+    lx.lineWidth = 1.0;
+    lx.fillStyle = 'rgb(255, 107, 171)';
+    lx.arc(25, 45, 5, 0, 2 * Math.PI);
+    lx.fill();
+    lx.fillStyle = 'rgb(0, 0, 0)';
+    lx.font = "15px Arial";
+    lx.fillText("= " + type1, 35, 50);
+    lx.stroke();   
+        
+    lx.beginPath();
+    lx.lineWidth = 1.0;
+    lx.fillStyle = 'rgb(44, 192, 246)';
+    lx.fillRect(20, 80, 10, 10);
+    lx.fill();
+    lx.fillStyle = 'rgb(0, 0, 0)';
+    lx.font = "15px Arial";
+    lx.fillText("= " + type2, 35, 90);
+    lx.strokeRect(20, 80, 10, 10); 
+            
+    lx.beginPath();
+    lx.lineWidth = 1.0;        
+    lx.fillStyle = 'rgb(178, 8, 197)';
+    lx.moveTo(25, 120);
+    lx.lineTo(20, 130)
+    lx.lineTo(30, 130)
+    lx.lineTo(25, 120)
+    lx.fill();
+    lx.fillStyle = 'rgb(0, 0, 0)';
+    lx.font = "15px Arial";
+    lx.fillText("= " + type3, 35, 130);
+    lx.stroke(); 
 
 });
 
@@ -308,7 +471,7 @@ false
 
 
 
-//-----------------------------------------------Closes 5------------------------------------------------------------------
+//-----------------------------------------------Closest 5------------------------------------------------------------------
 
 
 
@@ -469,3 +632,25 @@ window.addEventListener("contextmenu", function(e) {
 },
 false
 ); 
+
+
+
+//---------------------------------------------------- Legend Box -------------------------------------------------
+
+lx.beginPath();
+lx.lineWidth = 4.0;
+lx.moveTo(0,0);
+lx.lineTo(lWidth,0);
+lx.lineTo(lWidth,lHeight);
+lx.lineTo(0,lHeight);
+lx.lineTo(0,0);
+lx.stroke();
+lx.beginPath();
+lx.lineWidth = 2.0;
+lx.moveTo(0,20);
+lx.lineTo(lWidth, 20)
+lx.fillStyle = 'rgb(0, 0, 0)';
+lx.font = "15px Arial";
+lx.fillText("Legend", 25, 15);
+lx.stroke();
+
