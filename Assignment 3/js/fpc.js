@@ -47,18 +47,37 @@ function focusPlusContext(data) {
      * Task 1 - Parse date with timeParse to year-month-day
      */
 
+    var parseDate = d3.timeParse("%Y-%m-%d");
+
     /**
      * Task 2 - Define scales and axes for scatterplot
      */
+
+    // Scale for x axis
+    var xScale = d3.scaleTime().range([0, width]);
+    // Scale for y axis
+    var yScale = d3.scaleLinear().range([0, height]);
+    // Create x axis
+    var xAxis = d3.axisBottom(xScale);
+    // Create y axis
+    var yAxis = d3.axisLeft(yScale);
 
     /**
      * Task 3 - Define scales and axes for context (Navigation through the data)
      */
 
+    // Constext scale for x axis
+    var navXScale = d3.scaleTime().range([0, width]);
+    // Constext scale for y axis
+    var navYScale = d3.scaleLinear().range([0, height2]);
+    // Create x axis for context area
+    var navXAxis = d3.axisBottom(navXScale);
+
     /**
      * Task 4 - Define the brush for the context graph (Navigation)
      */
 
+    var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush", brushed);
 
     //Setting scale parameters
     var maxDate = d3.max(data.features, function (d) { return parseDate(d.properties.Date) });
@@ -73,6 +92,10 @@ function focusPlusContext(data) {
      * Task 5 - Set the axes scales, both for focus and context.
      */
 
+    xScale.domain([minDate, maxDate]);
+    yScale.domain([minMag, maxMag]);
+    navXScale.domain([minDate, maxDate]);
+    navYScale.domain([minMag, maxMag]);
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -91,12 +114,17 @@ function focusPlusContext(data) {
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height2 + ")")
         //here..
+        .call(navXAxis);
 
     /**
      * Task 7 - Plot the small dots on the context graph.
      */
     small_points = dots.selectAll("dot")
         //here...
+        .data(data.features)
+        .enter()
+        .append("circle")
+        .attr("class", "dotContext")
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return navXScale(parseDate(d.properties.Date));
@@ -110,6 +138,8 @@ function focusPlusContext(data) {
       * plot(points,nr,nr) try to use different numbers for the scaling.
       */
 
+     // PLot points in the context graph
+     points.plot(small_points, 5, 5);
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -126,8 +156,14 @@ function focusPlusContext(data) {
      */
     focus.append("g")
     //here..
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
     focus.append("g")
     //here..
+    .attr("class", "axis axis--y")
+    .call(yAxis);
 
     //Add y axis label to the scatter plot
     d3.select(".legend")
@@ -148,6 +184,11 @@ function focusPlusContext(data) {
      */
     selected_dots = dots.selectAll("dot")
         //here..
+        .data(data.features)
+        .enter()
+        .append("circle")
+        .attr("class", "dot")
+        .attr("opacity", 0.75)
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return xScale(parseDate(d.properties.Date));
@@ -160,6 +201,8 @@ function focusPlusContext(data) {
      * Task 12 - Call plot function
      * plot(points,nr,nr) no need to send any integers!
      */
+
+    points.plot(selected_dots);
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -235,6 +278,13 @@ function focusPlusContext(data) {
 
     //here..
 
+    context.append("g")
+        .attr("class", "brush")
+        .call(brush)
+        .call(brush.move, xScale.range());
+
+    
+
     //<---------------------------------------------------------------------------------------------------->
 
     //Brush function for filtering through the data.
@@ -265,7 +315,7 @@ function focusPlusContext(data) {
             /**
              * Remove comment for updating dots on the map.
              */
-            //curr_points_view = world_map.change_map_points(curr_view_erth)
+            curr_points_view = world_map.change_map_points(curr_view_erth)
         }
     }
 
