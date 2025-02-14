@@ -9,7 +9,7 @@ var cHeight = 900;
 c.width = cWidth;
 c.height = cHeight;
 
-c.style.background = "#ddf";
+c.style.background = 'rgb(255, 255, 255)';
 
 // Legend settings
 
@@ -22,7 +22,7 @@ var lHeight = 150;
 l.width = lWidth;
 l.height = lHeight;
 
-l.style.background = "#ddf";
+l.style.background = 'rgb(255, 255, 255)';
 
 // Class thet defines a point
 class Point {
@@ -162,7 +162,7 @@ btn.addEventListener("click", function() {
             ctx.beginPath();
             ctx.fillStyle = 'rgb(205, 0, 0)';
             ctx.font = "14px Arial";
-            gridNumber = ((i - 450) / scaleFactorNeg).toFixed(1);
+            gridNumber = -1 * ((i - 450) / scaleFactorNeg).toFixed(1);
             ctx.fillText(gridNumber, (cWidth/2) + 15, i + 5);
             ctx.stroke();
         }
