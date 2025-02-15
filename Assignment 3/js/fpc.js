@@ -219,7 +219,7 @@ function focusPlusContext(data) {
             /**
              * Task 13 - Update information in the "tooltip" by calling the tooltip function.
              */
-
+            points.tooltip(d)
 
             //Rescale the dots onhover
             d3.select(this).attr('r', 15)
