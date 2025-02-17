@@ -47,6 +47,7 @@ function focusPlusContext(data) {
      * Task 1 - Parse date with timeParse to year-month-day
      */
 
+    // Store date as Year-Month-Day
     var parseDate = d3.timeParse("%Y-%m-%d");
 
     /**
@@ -77,7 +78,9 @@ function focusPlusContext(data) {
      * Task 4 - Define the brush for the context graph (Navigation)
      */
 
-    var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush", brushed);
+    var brush = d3.brushX() // Create one-dimensional brush along x-axis
+        .extent([[0, 0], [width, height2]]) // Initialise brush area, from (0,0) to (width,height2) height2 is the height of the context area
+        .on("brush", brushed); // Event listener. When brushing occurs call the brushed function
 
     //Setting scale parameters
     var maxDate = d3.max(data.features, function (d) { return parseDate(d.properties.Date) });
@@ -92,6 +95,7 @@ function focusPlusContext(data) {
      * Task 5 - Set the axes scales, both for focus and context.
      */
 
+    // Define the range of accepted values for the scales by providing a min and max value
     xScale.domain([minDate, maxDate]);
     yScale.domain([minMag, maxMag]);
     navXScale.domain([minDate, maxDate]);
@@ -114,17 +118,17 @@ function focusPlusContext(data) {
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height2 + ")")
         //here..
-        .call(navXAxis);
+        .call(navXAxis); // Add the x-axis to the context area
 
     /**
      * Task 7 - Plot the small dots on the context graph.
      */
     small_points = dots.selectAll("dot")
         //here...
-        .data(data.features)
-        .enter()
-        .append("circle")
-        .attr("class", "dotContext")
+        .data(data.features) // Select all "dots" in the "features" of data
+        .enter() // Append the selected data to small_points
+        .append("circle") // Append a circle element
+        .attr("class", "dotContext") // Set the class of selected object to "dotContext"
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return navXScale(parseDate(d.properties.Date));
@@ -139,7 +143,7 @@ function focusPlusContext(data) {
       */
 
      // PLot points in the context graph
-     points.plot(small_points, 5, 5);
+     points.plot(small_points, 5, 5); // Call the plot function from plot_points.js
 
     //<---------------------------------------------------------------------------------------------------->
 
