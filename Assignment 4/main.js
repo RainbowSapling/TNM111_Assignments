@@ -39,7 +39,7 @@ btn.addEventListener("click", function() {
     
 
     // Define the size of the svg area
-    let width = 900, height = 900
+    let width = 1400, height = 950
 
     // Variable for radius of points
     var radius = 10;
@@ -47,10 +47,10 @@ btn.addEventListener("click", function() {
 
     // Create force simulations
     let simulation = forceSimulation(nodes) 
-        .force('charge', forceManyBody().strength(-40)) // Force that makes objects repel each other
+        .force('charge', forceManyBody().strength(-50)) // Force that makes objects repel each other
         .force('center', forceCenter(width / 2, height / 2)) // Force that attracts objects to the center
         .force('collision', forceCollide().radius(radius)) // Force that gives points a hitbox so they donnt overlap
-        .force('link', forceLink().links(links).distance(100)) // Force that makes linked nodes be a set distance from each other
+        .force('link', forceLink().links(links).distance(15).strength(0.05)) // Force that makes linked nodes be a set distance from each other
         .on('tick', ticked); // Calls function "ticked" every iteration
 
 
@@ -65,10 +65,10 @@ btn.addEventListener("click", function() {
                 return d.colour
             })
             .attr('cx', function(d) { // Sets x position
-                return d.x
+                return d.x = Math.max(radius, Math.min(width - radius, d.x)); // Prevents point going off screen
             })
             .attr('cy', function(d) { // Sets y position
-                return d.y
+                return d.y = Math.max(radius, Math.min(height - radius, d.y)); // Prevents point going off screen
             });
     }
     
@@ -79,6 +79,8 @@ btn.addEventListener("click", function() {
             .data(links)
             .join('line')
             .attr('stroke', 'black') // Color of line
+            .attr('opacity', 0.3) // Opacity of line
+            .attr('stroke-width', 1.5) // Set line width
             .attr('x1', function(d) { // X position of source point
                 return d.source.x
             })
