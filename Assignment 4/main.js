@@ -1,5 +1,5 @@
 import { select } from 'https://esm.sh/d3-selection';
-import { forceSimulation, forceManyBody, forceCenter } from 'https://esm.sh/d3-force';
+import { forceSimulation, forceManyBody, forceCenter, forceLink, forceCollide } from 'https://esm.sh/d3-force';
 
 // Good links:
 // https://www.d3indepth.com/force-layout/
@@ -29,31 +29,74 @@ var file;
 // Might need, who knows...
 let btn = document.querySelector("#selectFile")
 btn.addEventListener("click", function() {
+    
+    // Split the file into nodes and links
+    var nodes = file.nodes;
+    var links = file.links;
 
-    console.log(file);   
+    console.log(nodes);
+    console.log(links);
+    
+
+    // Define the size of the svg area
+    let width = 900, height = 900
+
+    // Variable for radius of points
+    var radius = 10;
 
 
+    // Create force simulations
+    let simulation = forceSimulation(nodes) 
+        .force('charge', forceManyBody().strength(-40)) // Force that makes objects repel each other
+        .force('center', forceCenter(width / 2, height / 2)) // Force that attracts objects to the center
+        .force('collision', forceCollide().radius(radius)) // Force that gives points a hitbox so they donnt overlap
+        .force('link', forceLink().links(links).distance(100)) // Force that makes linked nodes be a set distance from each other
+        .on('tick', ticked); // Calls function "ticked" every iteration
 
-    let width = 300, height = 300
-    let nodes = [{}, {}, {}, {}, {}]
 
-    let simulation = forceSimulation(nodes)
-        .force('charge', forceManyBody().strength(-20))
-        .force('center', forceCenter(width / 2, height / 2))
-        .on('tick', ticked);
-
-    function ticked() {
+    // Function to draw points on the svg
+    function updateNodes() {
         select('svg')
             .selectAll('circle')
             .data(nodes)
             .join('circle')
-            .attr('r', 5)
-            .attr('cx', function(d) {
+            .attr('r', radius) // Sets radius
+            .style("fill", function (d) { // Set color of point to the color specified in the file
+                return d.colour
+            })
+            .attr('cx', function(d) { // Sets x position
                 return d.x
             })
-            .attr('cy', function(d) {
+            .attr('cy', function(d) { // Sets y position
                 return d.y
             });
+    }
+    
+    // Function to draw links between the points
+    function updateLinks() {
+        select('svg')
+            .selectAll('line')
+            .data(links)
+            .join('line')
+            .attr('stroke', 'black') // Color of line
+            .attr('x1', function(d) { // X position of source point
+                return d.source.x
+            })
+            .attr('y1', function(d) { // Y position of source point
+                return d.source.y
+            })
+            .attr('x2', function(d) { // X position of target point
+                return d.target.x
+            })
+            .attr('y2', function(d) { // Y position of target point
+                return d.target.y
+            });
+    }
+    
+    // Joins node array to circle elements and updates their position
+    function ticked() {
+        updateLinks()
+        updateNodes()
     }
 });
 
