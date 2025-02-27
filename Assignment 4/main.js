@@ -39,24 +39,24 @@ btn.addEventListener("click", function() {
     
 
     // Define the size of the svg area
-    let width = 1400, height = 950
+    let width = 700, height = 900
 
     // Variable for radius of points
     var radius = 10;
 
 
     // Create force simulations
-    let simulation = forceSimulation(nodes) 
+    const simulation = forceSimulation(nodes) 
         .force('charge', forceManyBody().strength(-50)) // Force that makes objects repel each other
         .force('center', forceCenter(width / 2, height / 2)) // Force that attracts objects to the center
-        .force('collision', forceCollide().radius(radius)) // Force that gives points a hitbox so they donnt overlap
+        //.force('collision', forceCollide().radius(radius)) // Force that gives points a hitbox so they donnt overlap
         .force('link', forceLink().links(links).distance(15).strength(0.05)) // Force that makes linked nodes be a set distance from each other
         .on('tick', ticked); // Calls function "ticked" every iteration
 
 
     // Function to draw points on the svg
-    function updateNodes() {
-        select('svg')
+    function updateNodes(selectedSVG) {
+        select(document.getElementById(selectedSVG))
             .selectAll('circle')
             .data(nodes)
             .join('circle')
@@ -73,8 +73,8 @@ btn.addEventListener("click", function() {
     }
     
     // Function to draw links between the points
-    function updateLinks() {
-        select('svg')
+    function updateLinks(selectedSVG) {
+        select(document.getElementById(selectedSVG))
             .selectAll('line')
             .data(links)
             .join('line')
@@ -97,8 +97,12 @@ btn.addEventListener("click", function() {
     
     // Joins node array to circle elements and updates their position
     function ticked() {
-        updateLinks()
-        updateNodes()
+        // Draw plot on svg1
+        updateLinks("svg1")
+        updateNodes("svg1")
+        // Draw plot on svg2
+        updateLinks("svg2")
+        updateNodes("svg2")
     }
 });
 
